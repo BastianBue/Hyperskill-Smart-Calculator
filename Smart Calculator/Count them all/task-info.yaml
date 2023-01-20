@@ -180,6 +180,21 @@ files:
         }
     }
   learner_created: false
-feedback_link: https://hyperskill.org/projects/88/stages/488/implement#comment
-status: Unchecked
-record: -1
+- name: src/calculator/Calculator.kt
+  visible: true
+  text: |-
+    package calculator
+
+    object Calculator {
+        fun sum(numbers: List<Int>) = numbers.sum()
+    }
+  learner_created: true
+- name: src/calculator/Menu.kt
+  visible: true
+  learner_created: true
+feedback_link: https://hyperskill.org/learn/step/7811#comment
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Mon, 16 Jan 2023 15:57:48 UTC
+record: 3

@@ -190,6 +190,41 @@ files:
         }
     }
   learner_created: false
-feedback_link: https://hyperskill.org/projects/88/stages/489/implement#comment
-status: Unchecked
-record: -1
+- name: src/calculator/Menu.kt
+  visible: true
+  text: |-
+    package calculator
+
+    object Menu {
+        fun start() {
+            do {
+                val line = readln()
+                when (line) {
+                    "", "/exit" -> continue
+                    "/help" -> println("The program calculates teh sum of numbers")
+                    else -> {
+                        val args = line.split(" ").map { it.toInt() }
+                        println(Calculator.sum(args))
+                    }
+                }
+
+            } while (line != "/exit")
+            println("Bye!")
+        }
+    }
+  learner_created: true
+- name: src/calculator/Calculator.kt
+  visible: true
+  text: |-
+    package calculator
+
+    object Calculator {
+        fun sum(numbers: List<Int>) = numbers.sum()
+    }
+  learner_created: true
+feedback_link: https://hyperskill.org/learn/step/7812#comment
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Wed, 18 Jan 2023 15:38:41 UTC
+record: 4

@@ -213,6 +213,120 @@ files:
         }
     }
   learner_created: false
-feedback_link: https://hyperskill.org/projects/88/stages/490/implement#comment
-status: Unchecked
-record: -1
+- name: src/calculator/Menu.kt
+  visible: true
+  text: |-
+    package calculator
+
+    object Menu {
+        fun startCalculator() {
+            do {
+                val line = readln()
+                when (line) {
+                    "", "/exit" -> continue
+                    "/help" -> println("The programm takes a string and evaluates it Mathemeatically")
+                    else -> Calculator.evaluateLine(line)
+                }
+
+            } while (line != "/exit")
+            println("Bye!")
+        }
+    }
+  learner_created: true
+- name: src/calculator/Calculator.kt
+  visible: true
+  text: |+
+    package calculator
+
+    import java.lang.Exception
+
+    class UserInputException : Exception("Invalid User Input")
+
+    fun removeWhitespace(line: String): String = line.filterNot { it.isWhitespace() }
+    fun validateLine(line: String) = Regex("([1-9]?[0-9]*?\\s*[-+]*)*").matches(line)
+
+    object Calculator {
+        fun evaluateOperations(operations: List<Operation>): Int {
+            var result = 0
+            operations.apply { operations.forEach { result = it.applyOperationToValue(result) } }
+            return result
+        }
+
+        fun evaluateLine(line: String) {
+            val noWhiteSpace = removeWhitespace(line)
+            val isValid = validateLine(noWhiteSpace)
+            if (!isValid) throw UserInputException()
+            val operations = Operation.Factory.divideLineToOperations(noWhiteSpace)
+            println(evaluateOperations(operations))
+        }
+
+
+        class Operation(
+            private val operator: Operators,
+            private val number: Int
+        ) {
+            constructor(operationString: String, _number: Int) : this(parseToOperation(operationString), _number)
+
+            fun applyOperationToValue(originalValue: Int): Int =
+                operator.transformer(originalValue, number)
+
+
+            enum class Operators(val transformer: (originalValue: Int, operationValue: Int) -> Int) {
+                ADD({ originalValue, operationValue -> originalValue + operationValue }),
+                SUBTRACT({ originalValue, operationValue -> originalValue - operationValue })
+            }
+
+            companion object {
+                fun parseToOperation(operationString: String): Operators {
+                    return if (!operationString.contains('-')) return Operators.ADD
+                    else if (operationString.count { it == '-' } % 2 == 1) Operators.SUBTRACT
+                    else Operators.ADD
+                }
+
+
+            }
+
+            object Factory {
+                fun divideLineToOperations(line: String): List<Operation> = buildList {
+                    var currentOperatorString: String = ""//assuming plus for leading numbers without an operator
+                    var currentNumber: String = ""
+                    val addOperation = {
+                        add(Operation(currentOperatorString, currentNumber.toInt()))
+                        currentNumber = ""
+                        currentOperatorString = ""
+                    }
+
+                    line.forEachIndexed { index, c ->
+                        run {
+                            val isNumber = c.isDigit()
+                            if (isNumber) {
+                                currentNumber += c
+                            } else if (!isNumber) {
+                                currentOperatorString += c
+                            }
+                            try {
+                                val nextIsNumber = line[index + 1].isDigit()
+                                if (isNumber && !nextIsNumber) {
+                                    addOperation()
+                                }
+                            } catch (e: IndexOutOfBoundsException) {
+                                addOperation()
+                            }
+                        }
+                    }
+                }
+            }
+
+            override fun toString(): String {
+                return "$operator $number"
+            }
+        }
+    }
+
+  learner_created: true
+feedback_link: https://hyperskill.org/learn/step/7813#comment
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Fri, 20 Jan 2023 07:06:36 UTC
+record: 5

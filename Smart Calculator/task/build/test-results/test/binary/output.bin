@@ -1,0 +1,43 @@
+[1;31m
+Start test 1[0m
+> /help
+=The programm takes a string and evaluates it Mathemeatically
+> 
+> 5 + 1 + 4
+10
+> 23 - 17 - 13
+-7
+*> 33 + 20 + 11 + 49 - 32 - 9 + 1 - 80 + 4
+-3
+> 11 - 7 - 4
+0
+	> /start
+Unknown command
+> /exit
+Bye!
+[1;31m
+Start test 2[0m
+> n = 5
+> m=2
+> a    =  7
+	> c=  a 
+> a
+7
+> c
+7
+> test = 0
+> test
+0
+> test = 1
+> a = test
+> a
+1
+> /exit
+Bye!
+[1;31m
+Start test 3[0m
+> a = 9
+> b=2
+> c = 1
+> a + b
+Invalid expression

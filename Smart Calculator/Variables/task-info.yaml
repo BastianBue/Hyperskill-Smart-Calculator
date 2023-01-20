@@ -313,6 +313,123 @@ files:
         }
     }
   learner_created: false
-feedback_link: https://hyperskill.org/projects/88/stages/491/implement#comment
-status: Unchecked
-record: -1
+- name: src/calculator/Menu.kt
+  visible: true
+  text: |-
+    package calculator
+
+    object Menu {
+        fun startCalculator() {
+            do {
+                val line = readln()
+                if (line.startsWith('/')) {
+                    when (line) {
+                        "/exit" -> continue
+                        "/help" -> println("The programm takes a string and evaluates it Mathemeatically")
+                        else -> println("Unknown command")
+                    }
+                } else {
+                    if (line == "") continue else try {
+                        println(Calculator.evaluateLine(line))
+                    } catch (e: UserInputException) {
+                        println(e.message)
+                    }
+                }
+            } while (line != "/exit")
+            println("Bye!")
+        }
+    }
+  learner_created: true
+- name: src/calculator/Calculator.kt
+  visible: true
+  text: |+
+    package calculator
+
+    import java.lang.Exception
+
+    class UserInputException : Exception("Invalid expression")
+
+    fun removeWhitespace(line: String): String = line.filterNot { it.isWhitespace() }
+    fun validateLine(line: String) = Regex("[-+]*(\\d+[+-]+)*\\d+").matches(line)
+
+    object Calculator {
+        fun evaluateLine(line: String): Int {
+            val noWhiteSpace = removeWhitespace(line)
+            if (!validateLine(noWhiteSpace)) throw UserInputException()
+            val formattedString = formatLine(noWhiteSpace)
+            val operations = divideFormattedString(formattedString)
+            return evaluateOperations(operations)
+        }
+
+        private fun formatLine(operationString: String): String = operationString
+            .replace("--", "+")
+            .replace("+-", "-")
+            .replace("\\++".toRegex(), "+")
+
+
+        private fun divideFormattedString(formattedLine: String): List<Operation> = buildList {
+            val numbers = formattedLine.split("[-+]+".toRegex()).filter { it != "" }.map { it.toInt() }
+            val operators = formattedLine.split("\\d+".toRegex()).map {
+                when (it) {
+                    "+" -> Operation.Operators.ADD
+                    "-" -> Operation.Operators.SUBTRACT
+                    else -> Operation.Operators.ADD
+                }
+            }.toMutableList()
+
+            if (numbers.size > operators.size) operators.add(0, Operation.Operators.ADD)
+            for (i in numbers.indices) {
+                add(
+                    Operation(
+                        operators[i],
+                        numbers[i]
+                    )
+                )
+            }
+        }
+
+        private fun evaluateOperations(operations: List<Operation>): Int {
+            var result = 0
+            operations.apply { operations.forEach { result = it.applyOperationToValue(result) } }
+            return result
+        }
+
+
+        class Operation(
+            private val operator: Operators,
+            private val number: Int
+        ) {
+            enum class Operators(val symbol: Char, val transformer: (originalValue: Int, operationValue: Int) -> Int) {
+                ADD('+', { originalValue, operationValue -> originalValue + operationValue }),
+                SUBTRACT('-', { originalValue, operationValue -> originalValue - operationValue })
+            }
+
+            fun applyOperationToValue(originalValue: Int): Int =
+                operator.transformer(originalValue, number)
+        }
+    }
+
+  learner_created: true
+- name: src/calculator/TODO.md
+  visible: true
+  learner_created: true
+feedback_link: https://hyperskill.org/learn/step/7814#comment
+status: Failed
+feedback:
+  message: |-
+    Wrong answer in test #3
+
+    The program cannot perform operations with variables. For example, addition operation.
+
+    Please find below the output of your program during this failed test.
+    Note that the &#39;&gt;&#39; character indicates the beginning of the input line.
+
+    ---
+
+    &gt; a = 9
+    &gt; b=2
+    &gt; c = 1
+    &gt; a + b
+    Invalid expression
+  time: Fri, 20 Jan 2023 16:13:26 UTC
+record: 6
