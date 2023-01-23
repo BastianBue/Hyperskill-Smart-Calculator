@@ -259,6 +259,145 @@ files:
         }
     }
   learner_created: false
+- name: src/calculator/Menu.kt
+  visible: true
+  text: |
+    package calculator
+
+    val COMMAND_REGEX = Regex("/.*")
+    val ASSIGNMENT_REGEX = Regex(".*=.*")
+    val VARIABLE_LOOKUP_REGEX = Regex("[a-zA-Z]+")
+
+    fun menu() {
+        do {
+            val line = readln().replace("\\s".toRegex(), "")
+            when {
+                line == "" -> continue
+
+                COMMAND_REGEX.matches(line) -> when (line) {
+                    "/exit" -> continue
+                    "/help" -> println("The programm takes a string and evaluates it Mathemeatically")
+                    else -> println("Unknown command")
+                }
+
+                ASSIGNMENT_REGEX.matches(line) -> {
+                    val (key, value) = line.split("=")
+                    Calculator.assign(key, value)
+                }
+
+                VARIABLE_LOOKUP_REGEX.matches(line) -> println(Calculator.lookup(line))
+
+                else -> try {
+                    println(Calculator.evaluateLine(line))
+                } catch (e: UserInputException) {
+                    println(e.message)
+                }
+            }
+        } while (line != "/exit")
+        println("Bye!")
+    }
+  learner_created: true
+- name: src/calculator/Calculator.kt
+  visible: true
+  text: |-
+    package calculator
+
+    import java.util.UnknownFormatConversionException
+    import kotlin.Exception
+
+
+    val IDENTIFIER_REGEX = Regex("[a-zA-Z]+")
+    val VARIABLE_ASSIGNEMENT_REGEX = Regex("([a-zA-Z]+|\\d+)")
+
+    open class VariableException(override val message: String?) : Exception(message)
+    class UnknownVariableException : VariableException("Unknown variable")
+    class InvalidAssignmentException : VariableException("Invalid assignment")
+    class InvalidIdentifierException : VariableException("Invalid identifier")
+
+    class UserInputException : Exception("Invalid expression")
+
+    object Calculator {
+        private val variables = mutableMapOf<String, Int>()
+
+        fun assign(key: String, value: String) {
+            try {
+                if (!IDENTIFIER_REGEX.matches(key)) throw InvalidIdentifierException()
+                if (!VARIABLE_ASSIGNEMENT_REGEX.matches(value)) throw InvalidAssignmentException()
+                if (value.first().isDigit()) {
+                    variables[key] = value.toInt()
+                } else {
+                    variables[key] = variables[value] ?: throw UnknownVariableException()
+                }
+            } catch (e: VariableException) {
+                println(e.message)
+            }
+        }
+
+        fun lookup(variableName: String): Int? {
+            return try {
+                variables[variableName] ?: throw UnknownVariableException()
+            } catch (e: UnknownVariableException) {
+                println(e.message)
+                null
+            }
+        }
+
+        fun evaluateLine(line: String): Int {
+            if (!Regex("[-+]*((\\d+|[a-zA-Z]+)[+-]+)*(\\d+|[a-zA-Z]+)").matches(line)) throw UserInputException()
+            val formattedString = formatLine(line)
+            val operations = divideFormattedString(formattedString)
+            return evaluateOperations(operations)
+        }
+
+        private fun formatLine(operationString: String): String = operationString
+            .replace("--", "+")
+            .replace("+-", "-")
+            .replace("\\++".toRegex(), "+")
+
+
+        private fun divideFormattedString(formattedLine: String): List<Operation> = buildList {
+            val numbers = formattedLine.split("[-+]+".toRegex()).filter { it != "" }
+            val operators = formattedLine.split("(\\d+|[a-zA-Z]+)".toRegex()).filter { it != "" }.map {
+                when (it) {
+                    "+" -> Operation.Operators.ADD
+                    "-" -> Operation.Operators.SUBTRACT
+                    else -> throw Exception("cannot parse operator $it")
+                }
+            }.toMutableList()
+            if (numbers.size > operators.size) operators.add(0, Operation.Operators.ADD)
+            for (i in numbers.indices) {
+                val number = variables[numbers[i]] ?: numbers[i].toInt()
+                val operator = operators[i]
+                add(
+                    Operation(operator, number)
+                )
+            }
+        }
+
+        private fun evaluateOperations(operations: List<Operation>): Int {
+            var result = 0
+            operations.apply { operations.forEach { result = it.applyOperationToValue(result) } }
+            return result
+        }
+
+
+        class Operation(
+            private val operator: Operators,
+            private val number: Int
+        ) {
+            enum class Operators(val symbol: Char, val transformer: (originalValue: Int, operationValue: Int) -> Int) {
+                ADD('+', { originalValue, operationValue -> originalValue + operationValue }),
+                SUBTRACT('-', { originalValue, operationValue -> originalValue - operationValue })
+            }
+
+            fun applyOperationToValue(originalValue: Int): Int =
+                operator.transformer(originalValue, number)
+        }
+    }
+  learner_created: true
 feedback_link: https://hyperskill.org/learn/step/7815#comment
-status: Unchecked
-record: -1
+status: Solved
+feedback:
+  message: Congratulations!
+  time: Mon, 23 Jan 2023 14:45:00 UTC
+record: 7

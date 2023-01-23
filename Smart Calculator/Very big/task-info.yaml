@@ -358,6 +358,195 @@ files:
         }
     }
   learner_created: false
+- name: src/calculator/Menu.kt
+  visible: true
+  text: |
+    package calculator
+
+    val COMMAND_REGEX = Regex("/.*")
+    val ASSIGNMENT_REGEX = Regex(".*=.*")
+    val VARIABLE_LOOKUP_REGEX = Regex("[a-zA-Z]+")
+
+    fun menu() {
+        do {
+            val line = readln().replace("\\s".toRegex(), "")
+            try {
+                when {
+                    line == "" -> continue
+
+                    COMMAND_REGEX.matches(line) -> when (line) {
+                        "/exit" -> continue
+                        "/help" -> println("The programm takes a string and evaluates it Mathemeatically")
+                        else -> println("Unknown command")
+                    }
+
+                    ASSIGNMENT_REGEX.matches(line) -> {
+                        val (key, value) = line.split("=")
+                        Calculator.assign(key, value)
+                    }
+
+                    VARIABLE_LOOKUP_REGEX.matches(line) -> println(Calculator.lookup(line))
+
+                    else -> println(Calculator.evaluateLine(line))
+                }
+
+            } catch (e: UserInputException) {
+                println(e.message)
+            }
+        } while (line != "/exit")
+        println("Bye!")
+    }
+  learner_created: true
+- name: src/calculator/Calculator.kt
+  visible: true
+  text: |+
+    package calculator
+
+    import java.util.Stack
+    import kotlin.Exception
+
+
+    val IDENTIFIER_REGEX = Regex("[a-zA-Z]+")
+    val VARIABLE_ASSIGNEMENT_REGEX = Regex("-?([a-zA-Z]+|\\d+)")
+    val OPERATOR_REGEX = Regex("[+-/*()]")
+
+    open class VariableException(override val message: String?) : Exception(message)
+    class UnknownVariableException : VariableException("Unknown variable")
+    class InvalidAssignmentException : VariableException("Invalid assignment")
+    class InvalidIdentifierException : VariableException("Invalid identifier")
+    class UserInputException : Exception("Invalid expression")
+
+    fun validateInfixNotation(notation: String) =
+        Regex("[-+*/]*(\\(*(\\d+\\)*|\\(?[a-zA-Z]+\\)*)[-+*/]+)*(\\d+|[a-zA-Z]+\\)*)\\)*").matches(notation)
+
+    fun isOperator(it: Char) = OPERATOR_REGEX.matches(it.toString())
+
+    object Calculator {
+        private val variables = mutableMapOf<String, Int>()
+
+        fun assign(key: String, value: String) {
+            try {
+                if (!IDENTIFIER_REGEX.matches(key)) throw InvalidIdentifierException()
+                if (!VARIABLE_ASSIGNEMENT_REGEX.matches(value)) throw InvalidAssignmentException()
+                if (value.toIntOrNull() != null) {
+                    variables[key] = value.toInt()
+                } else {
+                    variables[key] = variables[value] ?: throw UnknownVariableException()
+                }
+            } catch (e: VariableException) {
+                println(e.message)
+            }
+        }
+
+        fun lookup(variableName: String): Int? {
+            return try {
+                variables[variableName] ?: throw UnknownVariableException()
+            } catch (e: UnknownVariableException) {
+                println(e.message)
+                null
+            }
+        }
+
+        private fun formatLine(operationString: String): String {
+            if (operationString.matches(".*(\\*\\*|//).*".toRegex())) throw UserInputException()
+            return operationString
+                .replace("--", "+")
+                .replace("+-", "-")
+                .replace("\\++".toRegex(), "+")
+                .replace("\\*+".toRegex(), "*")
+                .replace("/+".toRegex(), "/")
+
+        }
+
+        private fun convertToPostFix(line: String): String {
+            if (!validateInfixNotation(line)) throw UserInputException()
+
+            val operatorStack = Stack<Char>()
+            var postFixNotation = ""
+
+            val getPrecidence = { operator: Char ->
+                when (operator) {
+                    '+', '-' -> 1
+                    '*', '/' -> 2
+                    else -> throw Exception("encountered an invalid operator $operator while converting expression to postfix")
+                }
+            }
+            var digits = ""
+            line.forEach {
+                if (isOperator(it) && digits.isNotEmpty()) {
+                    postFixNotation += "$digits "
+                    digits = ""
+                }
+                // add teh spaces
+                if (!isOperator(it)) digits += it
+                else if (it == '(') operatorStack.push(it)
+                else if (it == ')') {
+                    do {
+                        postFixNotation += "${operatorStack.pop()} "
+                        if (operatorStack.isEmpty()) throw UserInputException()
+                    } while (operatorStack.peek() != '(')
+                    operatorStack.pop()
+                } else if (operatorStack.isEmpty() || operatorStack.peek() == '(') operatorStack.push(it)
+                else if (getPrecidence(it) > getPrecidence(operatorStack.peek())) operatorStack.push(it)
+                else if (getPrecidence(it) <= getPrecidence(operatorStack.peek())) {
+                    val precidence = getPrecidence(it)
+                    do {
+                        postFixNotation += "${operatorStack.pop()} "
+                    } while (!operatorStack.isEmpty() && operatorStack.peek() != '(' && getPrecidence(operatorStack.peek()) > precidence)
+                    operatorStack.push(it)
+                }
+            }
+            if (operatorStack.contains('(')) throw UserInputException()
+
+            if (digits.isNotEmpty()) postFixNotation += "$digits "
+            repeat(operatorStack.size) {
+                postFixNotation += "${operatorStack.pop()} "
+            }
+            return postFixNotation.trim()
+        }
+
+        private fun evaluatePostFix(postfix: String): Int {
+            val stack = Stack<Int>()
+            val items = postfix.split(" ")
+            for (i in items.indices) {
+                val operator = items[i]
+                var number: Int? = null
+                if (!OPERATOR_REGEX.matches(operator)) number = operator.toIntOrNull() ?: lookup(operator)
+                if (number != null) {
+                    stack.push(number)
+                } else {
+                    val (x, y) = List(2) { stack.pop() }
+                    when (operator) {
+                        "+" -> stack.push(y + x)
+                        "-" -> stack.push(y - x)
+                        "*" -> stack.push(y * x)
+                        "/" -> stack.push(y / x)
+                    }
+                }
+            }
+            return stack.pop()
+        }
+
+        fun evaluateLine(line: String): Int {
+            val formattedLine = formatLine(line)
+            val postFix = convertToPostFix(formattedLine)
+            return evaluatePostFix(postFix)
+        }
+
+    }
+
+
+
+
+
+
+
+
+  learner_created: true
 feedback_link: https://hyperskill.org/learn/step/7816#comment
-status: Unchecked
+status: Solved
+feedback:
+  message: Well done! You've finished the project. Select a new project on <a href="https://hyperskill.org/projects">JetBrains
+    Academy</a> to continue learning.
+  time: Mon, 23 Jan 2023 15:33:26 UTC
 record: -1

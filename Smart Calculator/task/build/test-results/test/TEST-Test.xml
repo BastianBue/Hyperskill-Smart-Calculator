@@ -1,111 +1,96 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Test" tests="1" skipped="0" failures="1" errors="0" timestamp="2023-01-20T16:13:26" hostname="air-b-bueld" time="0.071">
+<testsuite name="Test" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-01-23T15:33:25" hostname="air-b-bueld" time="0.097">
   <properties/>
-  <testcase name="start" classname="Test" time="0.071">
-    <failure message="java.lang.AssertionError: Wrong answer in test #3&#10;&#10;The program cannot perform operations with variables. For example, addition operation.&#10;&#10;Please find below the output of your program during this failed test.&#10;Note that the '&gt;' character indicates the beginning of the input line.&#10;&#10;---&#10;&#10;&gt; a = 9&#10;&gt; b=2&#10;&gt; c = 1&#10;&gt; a + b&#10;Invalid expression" type="java.lang.AssertionError">java.lang.AssertionError: Wrong answer in test #3
-
-The program cannot perform operations with variables. For example, addition operation.
-
-Please find below the output of your program during this failed test.
-Note that the '&gt;' character indicates the beginning of the input line.
-
----
-
-&gt; a = 9
-&gt; b=2
-&gt; c = 1
-&gt; a + b
-Invalid expression
-	at org.junit.Assert.fail(Assert.java:89)
-	at org.hyperskill.hstest.stage.StageTest.start(StageTest.java:203)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
-	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
-	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
-	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
-	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
-	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
-	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
-	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
-	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
-	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
-	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
-	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
-	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
-	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
-	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
-	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
-	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
-	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:110)
-	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
-	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:38)
-	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:62)
-	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:51)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
-	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
-	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
-	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
-	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
-	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:94)
-	at jdk.proxy1/jdk.proxy1.$Proxy2.processTestClass(Unknown Source)
-	at org.gradle.api.internal.tasks.testing.worker.TestWorker$2.run(TestWorker.java:176)
-	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:129)
-	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:100)
-	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:60)
-	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56)
-	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:133)
-	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:71)
-	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
-	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
-</failure>
-  </testcase>
+  <testcase name="start" classname="Test" time="0.097"/>
   <system-out><![CDATA[?[1;31m
 Start test 1?[0m
 > /help
-The programm takes a string and evaluates it Mathemeatically
+help me!
 > 
-> 5 + 1 + 4
-10
-> 23 - 17 - 13
--7
+> n = 32
 > 33 + 20 + 11 + 49 - 32 - 9 + 1 - 80 + 4
 -3
-> 11 - 7 - 4
+> 33 + 20 + 11 + 49 - n - 9 + 1 - 80 + 4
+-3
+> c = n 
+> c = 2
+>   c  
+2
+> 11 - 13 + c
 0
+> 5 --- 2 ++++++ 4 -- 2 ---- 1
+10
 > /start
 Unknown command
+> var1 = 1
+Invalid identifier
+> var = 2a
+Invalid assignment
+> c = 7 - 1 = 5
+Invalid assignment
+> variable = f
+Unknown variable
+> variable = 777
+> Variable
+Unknown variable
+null
+> variable = 777
+> Variable
+Unknown variable
+null
 > /exit
 Bye!
 ?[1;31m
 Start test 2?[0m
-> n = 5
-> m=2
-> a    =  7
-> c=  a 
-> a
+> 4 * 3
+12
+> 91 / 13
 7
-> c
-7
-> test = 0
-> test
-0
-> test = 1
-> a = test
-> a
-1
+>  a= 7 
+>  b =2
+> a * 4 / b - (3 - 1)
+12
 > /exit
 Bye!
 ?[1;31m
 Start test 3?[0m
-> a = 9
-> b=2
-> c = 1
-> a + b
+> 7 + 3 * ((4 + 3) * 7 + 1) - 6 / (2 + 1)
+155
+> /exit
+Bye!
+?[1;31m
+Start test 4?[0m
+> 8 * (2 + 3
 Invalid expression
+> 4 + 5)
+Invalid expression
+> 2 ************ 2
+Invalid expression
+> 2 // 2
+Invalid expression
+> /exit
+Bye!
+?[1;31m
+Start test 5?[0m
+> n = 32000000000000000000
+> 33000000000000000000 + 20000000000000000000 + 11000000000000000000 + 49000000000000000000 - 32000000000000000000 - 9000000000000000000 + 1000000000000000000 - 80000000000000000000 + 4000000000000000000 + 1
+-2999999999999999999
+> 33000000000000000000 + 20000000000000000000 + 11000000000000000000 + 49000000000000000000 - n - 9000000000000000000 + 1000000000000000000 - 80000000000000000000 + 4000000000000000000 + 1
+-2999999999999999999
+> c = n 
+> c = 2000000000000000000000
+>   c   
+2000000000000000000000
+> 11000000000000000000 - 9000000000000000000 - c + 1998000000000000000000
+0
+> 5000000000000000000 --- 2000000000000000000 ++++++ 4000000000000000000 -- 2000000000000000000 ---- 1000000000000000000
+10000000000000000000
+>  a= 7000000000000000000 
+>  b =2000000000000000000
+> a * 4000000000000000000 / b - (3000000000000000000 - 1000000000000000000)
+12000000000000000000
+> /exit
+Bye!
 ]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>

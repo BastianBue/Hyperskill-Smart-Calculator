@@ -1,98 +1,143 @@
 package calculator
 
-import java.util.UnknownFormatConversionException
+import java.math.BigInteger
+import java.util.Stack
 import kotlin.Exception
 
 
 val IDENTIFIER_REGEX = Regex("[a-zA-Z]+")
-val VARIABLE_ASSIGNEMENT_REGEX = Regex("([a-zA-Z]+|\\d+)")
+val VARIABLE_ASSIGNEMENT_REGEX = Regex("-?([a-zA-Z]+|\\d+)")
+val OPERATOR_REGEX = Regex("[+-/*()]")
 
-open class AssignmentException(override val message: String?) : Exception(message)
-class UnknownVariableException : AssignmentException("Unknown variable")
-class InvalidAssignmentException : AssignmentException("Invalid assignment")
-class InvalidIdentifierException : AssignmentException("Invalid identifier")
-
+open class VariableException(override val message: String?) : Exception(message)
+class UnknownVariableException : VariableException("Unknown variable")
+class InvalidAssignmentException : VariableException("Invalid assignment")
+class InvalidIdentifierException : VariableException("Invalid identifier")
 class UserInputException : Exception("Invalid expression")
 
-fun validateLine(line: String) = Regex("[-+]*(\\d+[+-]+)*\\d+").matches(line)
+fun validateInfixNotation(notation: String) =
+    Regex("[-+*/]*(\\(*(\\d+\\)*|\\(?[a-zA-Z]+\\)*)[-+*/]+)*(\\d+|[a-zA-Z]+\\)*)\\)*").matches(notation)
+
+fun isOperator(it: Char) = OPERATOR_REGEX.matches(it.toString())
 
 object Calculator {
-    private val variables = mutableMapOf<String, Int>()
+    private val variables = mutableMapOf<String, BigInteger>()
 
     fun assign(key: String, value: String) {
         try {
             if (!IDENTIFIER_REGEX.matches(key)) throw InvalidIdentifierException()
             if (!VARIABLE_ASSIGNEMENT_REGEX.matches(value)) throw InvalidAssignmentException()
-            if (value.first().isDigit()) {
-                variables[key] = value.toInt()
+            if (value.toBigIntegerOrNull() != null) {
+                variables[key] = value.toBigInteger()
             } else {
                 variables[key] = variables[value] ?: throw UnknownVariableException()
             }
-        } catch (e: AssignmentException) {
+        } catch (e: VariableException) {
             println(e.message)
         }
     }
 
-    fun lookup(variableName: String): Int? {
+    fun lookup(variableName: String): BigInteger? {
         return try {
             variables[variableName] ?: throw UnknownVariableException()
-        } catch (e: UnknownFormatConversionException) {
+        } catch (e: UnknownVariableException) {
             println(e.message)
             null
         }
     }
 
-    fun evaluateLine(line: String): Int {
-        if (!validateLine(line)) throw UserInputException()
-        val formattedString = formatLine(line)
-        val operations = divideFormattedString(formattedString)
-        return evaluateOperations(operations)
+    private fun formatLine(operationString: String): String {
+        if (operationString.matches(".*(\\*\\*|//).*".toRegex())) throw UserInputException()
+        return operationString
+            .replace("--", "+")
+            .replace("+-", "-")
+            .replace("\\++".toRegex(), "+")
+            .replace("\\*+".toRegex(), "*")
+            .replace("/+".toRegex(), "/")
+
     }
 
-    private fun formatLine(operationString: String): String = operationString
-        .replace("--", "+")
-        .replace("+-", "-")
-        .replace("\\++".toRegex(), "+")
+    fun convertToPostFix(line: String): String {
+        if (!validateInfixNotation(line)) throw UserInputException()
 
+        val operatorStack = Stack<Char>()
+        var postFixNotation = ""
 
-    private fun divideFormattedString(formattedLine: String): List<Operation> = buildList {
-        val numbers = formattedLine.split("[-+]+".toRegex()).filter { it != "" }.map { it.toInt() }
-        val operators = formattedLine.split("\\d+".toRegex()).map {
-            when (it) {
-                "+" -> Operation.Operators.ADD
-                "-" -> Operation.Operators.SUBTRACT
-                else -> Operation.Operators.ADD
+        val getPrecidence = { operator: Char ->
+            when (operator) {
+                '+', '-' -> 1
+                '*', '/' -> 2
+                else -> throw Exception("encountered an invalid operator $operator while converting expression to postfix")
             }
-        }.toMutableList()
-
-        if (numbers.size > operators.size) operators.add(0, Operation.Operators.ADD)
-        for (i in numbers.indices) {
-            add(
-                Operation(
-                    operators[i],
-                    numbers[i]
-                )
-            )
         }
-    }
-
-    private fun evaluateOperations(operations: List<Operation>): Int {
-        var result = 0
-        operations.apply { operations.forEach { result = it.applyOperationToValue(result) } }
-        return result
-    }
-
-
-    class Operation(
-        private val operator: Operators,
-        private val number: Int
-    ) {
-        enum class Operators(val symbol: Char, val transformer: (originalValue: Int, operationValue: Int) -> Int) {
-            ADD('+', { originalValue, operationValue -> originalValue + operationValue }),
-            SUBTRACT('-', { originalValue, operationValue -> originalValue - operationValue })
+        var digits = ""
+        line.forEach {
+            if (isOperator(it) && digits.isNotEmpty()) {
+                postFixNotation += "$digits "
+                digits = ""
+            }
+            // add teh spaces
+            if (!isOperator(it)) digits += it
+            else if (it == '(') operatorStack.push(it)
+            else if (it == ')') {
+                do {
+                    postFixNotation += "${operatorStack.pop()} "
+                    if (operatorStack.isEmpty()) throw UserInputException()
+                } while (operatorStack.peek() != '(')
+                operatorStack.pop()
+            } else if (operatorStack.isEmpty() || operatorStack.peek() == '(') operatorStack.push(it)
+            else if (getPrecidence(it) > getPrecidence(operatorStack.peek())) operatorStack.push(it)
+            else if (getPrecidence(it) <= getPrecidence(operatorStack.peek())) {
+                val precidence = getPrecidence(it)
+                do {
+                    postFixNotation += "${operatorStack.pop()} "
+                } while (!operatorStack.isEmpty() && operatorStack.peek() != '(' && getPrecidence(operatorStack.peek()) > precidence)
+                operatorStack.push(it)
+            }
         }
+        if (operatorStack.contains('(')) throw UserInputException()
 
-        fun applyOperationToValue(originalValue: Int): Int =
-            operator.transformer(originalValue, number)
+        if (digits.isNotEmpty()) postFixNotation += "$digits "
+        repeat(operatorStack.size) {
+            postFixNotation += "${operatorStack.pop()} "
+        }
+        return postFixNotation.trim()
     }
+
+    private fun evaluatePostFix(postfix: String): BigInteger {
+        val stack = Stack<BigInteger>()
+        val items = postfix.split(" ")
+        for (i in items.indices) {
+            val operator = items[i]
+            var number: BigInteger? = null
+            if (!OPERATOR_REGEX.matches(operator)) number = operator.toBigIntegerOrNull() ?: lookup(operator)
+            if (number != null) {
+                stack.push(number)
+            } else {
+                val (x, y) = List(2) { stack.pop() }
+                when (operator) {
+                    "+" -> stack.push(y + x)
+                    "-" -> stack.push(y - x)
+                    "*" -> stack.push(y * x)
+                    "/" -> stack.push(y / x)
+                }
+            }
+        }
+        return stack.pop()
+    }
+
+    fun evaluateLine(line: String): BigInteger {
+        val formattedLine = formatLine(line)
+        val postFix = convertToPostFix(formattedLine)
+        return evaluatePostFix(postFix)
+    }
+
 }
+
+
+
+
+
+
+
+

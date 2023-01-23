@@ -414,22 +414,8 @@ files:
   visible: true
   learner_created: true
 feedback_link: https://hyperskill.org/learn/step/7814#comment
-status: Failed
+status: Solved
 feedback:
-  message: |-
-    Wrong answer in test #3
-
-    The program cannot perform operations with variables. For example, addition operation.
-
-    Please find below the output of your program during this failed test.
-    Note that the &#39;&gt;&#39; character indicates the beginning of the input line.
-
-    ---
-
-    &gt; a = 9
-    &gt; b=2
-    &gt; c = 1
-    &gt; a + b
-    Invalid expression
-  time: Fri, 20 Jan 2023 16:13:26 UTC
+  message: Congratulations!
+  time: Sun, 22 Jan 2023 12:15:21 UTC
 record: 6
